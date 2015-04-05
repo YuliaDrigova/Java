@@ -47,49 +47,32 @@ public class First
 		return lines; 
 	}
 
-	public static Vector <String> IPAddressParser(String IP)
-	{
-		Vector <String> IPAddress = new Vector <String>();
-		String[] IPParse = IP.split("\\.");
-		for(String s: IPParse)
-		{
-			IPAddress.add(s);
-		}
-		return IPAddress;
-	}
-
-	public static boolean CheckIP(String IP)
-	{
-		Pattern p = Pattern.compile("^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
-				"([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
-				"([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
-				"([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
-		Matcher m = p.matcher(IP);
-		return m.matches();
-	}
 
 	
 	public static StringElement StringAnalyzer(String line) throws ParseException
 	{
 		Vector<String> result = Parser(line);
 		
-		Vector<String> address = IPAddressParser(result.elementAt(0));
-		
-		Vector<Integer> IPAddress = new Vector<Integer>();
-		if(CheckIP(result.elementAt(0)))
-		{
-			 for(String s: address)
-			  {
-				  IPAddress.add(Integer.valueOf(s));
-			  }
-		}
+		String IPAddress = result.elementAt(0);
 		String dateTime = result.elementAt(1);
 		SimpleDateFormat dateform = new SimpleDateFormat("[dd/MMM/yyyy:HH:mm:ss Z]", Locale.ENGLISH);
 		Date date = dateform.parse(dateTime);
 		String name = result.elementAt(2);
 		int codeAnswer = Integer.valueOf(result.elementAt(3));
 		int countBytes = Integer.valueOf(result.elementAt(4));
-		return new StringElement(IPAddress, address, date, name, codeAnswer, countBytes);
+		return new StringElement(IPAddress, date, name, codeAnswer, countBytes);
+	}
+	
+	public static void Output(String FileName, Vector <String> a) throws IOException
+	{
+		BufferedWriter writer = new BufferedWriter(new FileWriter(FileName));
+		for(String s: a)
+		{
+			writer.write(s);
+			writer.newLine();
+			
+		}
+		writer.close();
 	}
 	
 	public static void main(String[] args) throws IOException
@@ -106,16 +89,14 @@ public class First
 			Vector<String> res = ReadLines(Numline, Countlines, File);
 			if (res.size() != Countlines)
 				throw new Exception();
-		
-			BufferedWriter writer = new BufferedWriter(new FileWriter (args[3]));
+			Vector <String> finalStrings = new Vector<String>();
 			for(String s: res)
 			{
-				StringAnalyzer(s);
-				writer.write(s);
-				writer.newLine();
+				StringElement a = StringAnalyzer(s);
+				finalStrings.add(a.GetString());
 			}
-			
-			writer.close();
+		
+			Output(args[3], finalStrings);
 		}
 		
 		catch(IOException ex) {System.out.println("Something goes wrong1! Error!");}
